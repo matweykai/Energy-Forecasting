@@ -17,3 +17,19 @@ def get_data(file_path: str, column: int) -> Optional[List[int]]:
     except InvalidFileException:
         # TODO: Add logging
         return None
+
+
+def write_data(file_path: str, column: int, data: list) -> None:
+    """Writes data to existing excel file in the specified column"""
+    try:
+        workbook = load_workbook(file_path)
+        worksheet = workbook.active
+        # Filling cells with values
+        for row_ind, value in enumerate(data, 2):
+            temp_cell = worksheet.cell(row=row_ind, column=column + 1)
+            temp_cell.value = value
+
+        workbook.save(file_path)
+    except InvalidFileException:
+        # TODO: Add logging
+        pass
