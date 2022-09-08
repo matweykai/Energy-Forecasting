@@ -36,28 +36,49 @@ def write_data(file_path: str, column: int, data: list) -> None:
         pass
 
 
-def plot_results(file_path: str, max_col: int = 6) -> None:
+def plot_results(file_path: str, max_col: int = 6, data_col: int = 2) -> None:
     """Plots prediction results in Excel file. Max column shows end of columns with predictions"""
     try:
         workbook = load_workbook(file_path)
         worksheet = workbook.active
 
-        chart = LineChart()
+        # Plotting base data
+        data_chart = LineChart()
 
         # Chart configuration
-        chart.title = "Результаты работы алгоритмов"
-        chart.x_axis.title = "Час"
-        chart.y_axis.title = "Кол-во потреблённой энергии"
-        chart.height = 10
-        chart.width = 20
+        data_chart.title = "Энергопотребление за 24 часа"
+        data_chart.x_axis.title = "Час"
+        data_chart.y_axis.title = "Кол-во потреблённой энергии"
+        data_chart.height = 10
+        data_chart.width = 20
 
         # Configuring data
-        data = Reference(worksheet, min_col=3, max_col=max_col, min_row=1, max_row=worksheet.max_row)
+        data = Reference(worksheet, min_col=data_col, max_col=data_col, min_row=1, max_row=worksheet.max_row)
+        x_label = Reference(worksheet, min_col=1, max_col=1, min_row=1, max_row=worksheet.max_row)
 
         # Setting data
-        chart.add_data(data, titles_from_data=True)
+        data_chart.add_data(data)
+        data_chart.set_categories(x_label)
 
-        worksheet.add_chart(chart, 'H2')
+        worksheet.add_chart(data_chart, 'H2')
+
+        # Plotting prediction results
+        pred_chart = LineChart()
+
+        # Chart configuration
+        pred_chart.title = "Результаты работы алгоритмов"
+        pred_chart.x_axis.title = "Час"
+        pred_chart.y_axis.title = "Кол-во потреблённой энергии"
+        pred_chart.height = 10
+        pred_chart.width = 20
+
+        # Configuring data
+        data = Reference(worksheet, min_col=data_col + 1, max_col=max_col, min_row=1, max_row=worksheet.max_row)
+
+        # Setting data
+        pred_chart.add_data(data, titles_from_data=True)
+
+        worksheet.add_chart(pred_chart, 'H22')
 
         workbook.save(file_path)
     except InvalidFileException:
