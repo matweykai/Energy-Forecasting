@@ -74,3 +74,34 @@ def get_regr_prediction(data: list[float], forecast_len: int) -> list[float]:
         data.append(model.predict(t_data)[0, 0])
 
     return data[-forecast_len:]
+
+
+def get_ssa_prediction(data: list[float], forecast_len: int) -> list[float]:
+    """Uses SSA method for time series prediction
+    Algorithm: https://vital.lib.tsu.ru/vital/access/services/Download/vital:4503/SOURCE01"""
+
+    N = len(data)
+    L = N // 2          # Rows num
+    K = N - L + 1       # Columns num
+
+    # Getting matrix from Time Series
+    X = np.column_stack([data[i: i + L] for i in range(0, K)])
+
+    # Creating orthogonal matrix
+    S = X.dot(X.T)
+
+    # SVD operation
+    U, Sigma, V = np.linalg.svd(S)
+
+    z = U[:L-1, :]
+    v = U[L - 1, :]
+
+    for _ in range(forecast_len):
+        q = data[K: N]
+
+        p = np.linalg.inv(z.T.dot(z)).dot(z.T).dot(q)
+        # Updating data series with predicted values
+        data.append(v.dot(p))
+        data.pop(0)
+
+    return data[-forecast_len:]
