@@ -14,13 +14,11 @@ def get_ARMA_prediction(data: list[float], p: int, d: int, q: int, forecast_len:
     # Stabilizing dispersion
     model_data, lmb = stats.boxcox(data)
 
-    # TODO: Add logging on training
     arma_model = ARIMA(model_data, order=(p, d, q)).fit()
 
     # Making prediction
     pred = arma_model.predict(len(data), len(data) + forecast_len)
 
-    # TODO: Add logging after prediction
     # Inverting box-cox transform
     result = inv_boxcox(pred, lmb)
 
@@ -73,7 +71,7 @@ def get_regr_prediction(data: list[float], forecast_len: int) -> list[float]:
         t_data = np.array(data[-train_len:]).reshape((1, -1))
         data.append(model.predict(t_data)[0, 0])
 
-    return data[-forecast_len:]
+    return data[-forecast_len - 1:]
 
 
 def get_ssa_prediction(data: list[float], forecast_len: int) -> list[float]:
@@ -93,8 +91,8 @@ def get_ssa_prediction(data: list[float], forecast_len: int) -> list[float]:
     # SVD operation
     U, Sigma, V = np.linalg.svd(S)
 
-    z = U[:L-1, :]
-    v = U[L - 1, :]
+    z = U[:L-1, :-1]
+    v = U[L - 1, :-1]
 
     for _ in range(forecast_len):
         q = data[K: N]
@@ -104,4 +102,4 @@ def get_ssa_prediction(data: list[float], forecast_len: int) -> list[float]:
         data.append(v.dot(p))
         data.pop(0)
 
-    return data[-forecast_len:]
+    return data[-forecast_len - 1:]

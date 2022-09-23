@@ -16,7 +16,7 @@ def get_data(file_path: str, column: int) -> Optional[List[int]]:
 
         return result_values
     except InvalidFileException:
-        # TODO: Add logging
+        print("Invalid file!")
         return None
 
 
@@ -32,7 +32,7 @@ def write_data(file_path: str, column: int, data: list) -> None:
 
         workbook.save(file_path)
     except InvalidFileException:
-        # TODO: Add logging
+        print("Invalid file!")
         pass
 
 
@@ -82,5 +82,5 @@ def plot_results(file_path: str, max_col: int = 6, data_col: int = 2) -> None:
 
         workbook.save(file_path)
     except InvalidFileException:
-        # TODO: Add logging
+        print("Invalid file!")
         pass
